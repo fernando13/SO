@@ -1,0 +1,85 @@
+diff -rupN xv6-orig/syscall.c xv6-new/syscall.c
+--- xv6-orig/syscall.c	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/syscall.c	2018-04-05 12:08:46.892328565 -0300
+@@ -98,6 +98,7 @@ extern int sys_unlink(void);
+ extern int sys_wait(void);
+ extern int sys_write(void);
+ extern int sys_uptime(void);
++extern int sys_procstat(void);
+ 
+ static int (*syscalls[])(void) = {
+ [SYS_fork]    sys_fork,
+@@ -121,6 +122,7 @@ static int (*syscalls[])(void) = {
+ [SYS_link]    sys_link,
+ [SYS_mkdir]   sys_mkdir,
+ [SYS_close]   sys_close,
++[SYS_procstat]   sys_procstat,
+ };
+ 
+ void
+diff -rupN xv6-orig/syscall.h xv6-new/syscall.h
+--- xv6-orig/syscall.h	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/syscall.h	2018-04-05 12:12:41.028322561 -0300
+@@ -20,3 +20,4 @@
+ #define SYS_link   19
+ #define SYS_mkdir  20
+ #define SYS_close  21
++#define SYS_procstat  22
+\ No hay ningún carácter de nueva línea al final del archivo
+diff -rupN xv6-orig/sysproc.c xv6-new/sysproc.c
+--- xv6-orig/sysproc.c	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/sysproc.c	2018-04-05 12:09:49.368326963 -0300
+@@ -89,3 +89,12 @@ sys_uptime(void)
+   release(&tickslock);
+   return xticks;
+ }
++
++// Proyecto1
++// List the existing system's processes and their status
++int
++sys_procstat(void)
++{
++  procdump();
++  return 0;
++}
+\ No hay ningún carácter de nueva línea al final del archivo
+diff -rupN xv6-orig/user/forktest.c xv6-new/user/forktest.c
+--- xv6-orig/user/forktest.c	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/user/forktest.c	2018-04-05 12:11:30.316324374 -0300
+@@ -21,6 +21,8 @@ forktest(void)
+   printf(1, "fork test\n");
+ 
+   for(n=0; n<N; n++){
++    if(n==5)
++      procstat();    
+     pid = fork();
+     if(pid < 0)
+       break;
+diff -rupN xv6-orig/user/syscall.h xv6-new/user/syscall.h
+--- xv6-orig/user/syscall.h	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/user/syscall.h	2018-04-05 12:12:41.028322561 -0300
+@@ -20,3 +20,4 @@
+ #define SYS_link   19
+ #define SYS_mkdir  20
+ #define SYS_close  21
++#define SYS_procstat  22
+\ No hay ningún carácter de nueva línea al final del archivo
+diff -rupN xv6-orig/user/user.h xv6-new/user/user.h
+--- xv6-orig/user/user.h	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/user/user.h	2018-04-05 12:10:50.924325384 -0300
+@@ -23,6 +23,7 @@ int getpid(void);
+ char* sbrk(int);
+ int sleep(int);
+ int uptime(void);
++int procstat(void);
+ 
+ // ulib.c
+ int stat(char*, struct stat*);
+diff -rupN xv6-orig/user/usys.S xv6-new/user/usys.S
+--- xv6-orig/user/usys.S	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/user/usys.S	2018-04-05 12:10:35.728325774 -0300
+@@ -29,3 +29,4 @@ SYSCALL(getpid)
+ SYSCALL(sbrk)
+ SYSCALL(sleep)
+ SYSCALL(uptime)
++SYSCALL(procstat)

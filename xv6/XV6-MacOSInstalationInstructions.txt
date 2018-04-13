@@ -1,0 +1,10 @@
+MacOS xv6 dependecy instalation instructions
+
+- Use port or brew
+- sudo port/brew install i386-elf-gcc
+- sudo port/brew install qemu
+
+If your port/brew packages repo doesn't contains i386-elf-gcc:
+  - sudo brew tap coverxit/homebrew-xv6-toolchains
+  - sudo brew install i386-elf-gcc
+

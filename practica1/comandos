@@ -1,0 +1,58 @@
+
+Ejercicio4
+
+ps -ax >> ej4_threads.txt
+awk '/[[].*[]]/' ej4_threads.txt
+awk '/[[].*[]]/ {print $5}' ej4_threads.txt
+
+-------------------------------------------------
+
+Ejercicio5
+
+./ejercicio5 > f1.txt 2>f2.txt
+cat f1.txt f2.txt >> f3.txt
+
+-------------------------------------------------
+
+Ejercicio6
+
+vi carta.txt &        //Corre en segundo plano
+fg		      //Lo coloca en primer plano
+Ctrl-z		      //Lo suspende
+
+Para editar en vi pulsar i (insert).
+Para salir ESC :x (graba y sale) o :q! (sale sin grabar).
+
+-------------------------------------------------
+
+Ejercicio7
+
+grep Hola ejercicio5.c ; echo OK		//Se ejecuta secuencialmente
+
+salida:	 write(1,"Hola\n",5);         
+	 OK
+
+
+
+grep chau ejercicio5.c ; echo OK		//Se ejecuta secuencialmente
+
+salida:  OK
+
+
+
+
+grep -q Hola ejercicio5.c && echo OK		//Se ejecuta como un AND logico(&&) con evaluacion lazy
+
+salida:  OK
+
+
+
+
+grep chau ejercicio5.c || echo OK		//Se ejecuta como un OR logico(||) con evaluacion lazy
+
+salida:  OK
+
+-------------------------------------------------
+
+
+

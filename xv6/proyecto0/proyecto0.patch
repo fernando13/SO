@@ -1,0 +1,59 @@
+diff -rupN xv6-orig/mkfs.c xv6-new/mkfs.c
+--- xv6-orig/mkfs.c	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/mkfs.c	2018-03-22 10:10:52.223296620 -0300
+@@ -11,7 +11,7 @@
+ #include "stat.h"
+ #include "param.h"
+ 
+-#define static_assert(a, b) do { switch (0) case 0: case (a): ; } while (0)
++//#define static_assert(a, b) do { switch (0) case 0: case (a): ; } while (0)
+ 
+ int nblocks = (995-LOGSIZE);
+ int nlog = LOGSIZE;
+diff -rupN xv6-orig/param.h xv6-new/param.h
+--- xv6-orig/param.h	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/param.h	2018-03-28 15:29:02.541607033 -0300
+@@ -10,4 +10,5 @@
+ #define MAXOPBLOCKS  10  // max # of blocks any FS op writes
+ #define LOGSIZE      (MAXOPBLOCKS*3)  // max data sectors in on-disk log
+ #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
++#define QUANTUM		  3  // maximum number of ticks for process 
+ 
+diff -rupN xv6-orig/proc.h xv6-new/proc.h
+--- xv6-orig/proc.h	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/proc.h	2018-03-28 15:17:27.937613026 -0300
+@@ -66,6 +66,7 @@ struct proc {
+   struct file *ofile[NOFILE];  // Open files
+   struct inode *cwd;           // Current directory
+   char name[16];               // Process name (debugging)
++  uint pticks;                 // Local ticks to the process
+ };
+ 
+ // Process memory is laid out contiguously, low addresses first:
+diff -rupN xv6-orig/trap.c xv6-new/trap.c
+--- xv6-orig/trap.c	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/trap.c	2018-03-28 15:31:38.997605683 -0300
+@@ -103,7 +103,13 @@ trap(struct trapframe *tf)
+   // Force process to give up CPU on clock tick.
+   // If interrupts were on while locks held, would need to check nlock.
+   if(proc && proc->state == RUNNING && tf->trapno == T_IRQ0+IRQ_TIMER)
+-    yield();
++    // Proyecto0
++    // Force process to give up CPU on the clock ticks given by quantum.
++    if(proc->pticks++ == QUANTUM-1){
++      cprintf("Proceso: %d terminado en %d ticks\n", proc->pid, proc->pticks );
++      proc->pticks = 0;
++      yield();
++    }
+ 
+   // Check if the process has been killed since we yielded
+   if(proc && proc->killed && (tf->cs&3) == DPL_USER)
+diff -rupN xv6-orig/user/param.h xv6-new/user/param.h
+--- xv6-orig/user/param.h	2015-04-08 15:02:06.000000000 -0300
++++ xv6-new/user/param.h	2018-03-28 15:29:02.541607033 -0300
+@@ -10,4 +10,5 @@
+ #define MAXOPBLOCKS  10  // max # of blocks any FS op writes
+ #define LOGSIZE      (MAXOPBLOCKS*3)  // max data sectors in on-disk log
+ #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
++#define QUANTUM		  3  // maximum number of ticks for process 
+ 
